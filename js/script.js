@@ -47,14 +47,42 @@ getPokemons();
 
 const templatePokemons = (imgPokemons) => {
     app.innerHTML += `
-    <div class="pokemon-card">
-        <img src="${imgPokemons.sprites.front_default }"/>
-        <p id='nombre' value=${imgPokemons.name}>${imgPokemons.name}</p>
+    <div class="pokemons-card">
+        <img  class="imgPokemons"src="${imgPokemons.sprites.front_default }"/>
+        <p id='nombrePokemons' value=${imgPokemons.name}>${imgPokemons.name}</p>
     </div>
     `;
 
 
 }
+const getNamePokemons = async(nombre) => {
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
+        if (!response.ok) {
+            throw new Error('Hubo un error cargando los Pokemons');
+        }
+        const pokemons = await response.json();
+        console.log(pokemons);
+        let imgPokemon = pokemons.sprites.front_default;
+        let namePokemon = pokemons.name;
+        app.innerHTML = ""
+        app.innerHTML = `
+            <div class="pokemon-card">
+                <img class="imgPokemon"src="${imgPokemon}"/>
+                <p class="nombrePokemon"id='nombre' value=${namePokemon}>${namePokemon}</p>
+                <div>
+                    <p><span>Base Experience:</span> ${pokemons.base_experience}</p>
+                    <p><span>Types:</span> ${pokemons.types[0].type.name}</p>
+                    <p><span>Weight:</span> ${pokemons.weight}</p>
+                </div>
+            </div>
+            `;
+
+
+    } catch (error) {
+        console.error(error)
+    }
+};
 
 nextBtn.addEventListener("click", () => {
 
@@ -88,7 +116,7 @@ prevBtn.addEventListener("click", () => {
         sumar -= 10;
         sumar2 -= 10;
         app.innerHTML = "";
-        getPokemons(restar, restar2)
+        getPokemons(sumar, sumar2)
         console.log(sumar, sumar2)
 
     }
@@ -96,6 +124,7 @@ prevBtn.addEventListener("click", () => {
 
 })
 resetBtn.addEventListener('click', () => {
+    searchInput.value = '';
     app.innerHTML = '';
     sumar = 0;
     sumar2 = 10;
@@ -103,25 +132,12 @@ resetBtn.addEventListener('click', () => {
 })
 
 searchBtn.addEventListener('click', () => {
-    console.log(searchBtn.value);
-    if (searchInput.value != '') {
-        let nombre = searchBtn.value;
-        const getPokemons = async(nombre) => {
-            try {
-                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
-                if (!response.ok) {
-                    throw new Error('Hubo un error cargando los Pokemons');
-                }
-                const pokemons = await response.json();
-                app.innerHTML = ""
-                app.innerHTML = pokemons.name
-
-
-            } catch (error) {
-                console.error(error)
-            }
-        };
-
-
+    let nombrePokemon = searchInput.value;
+    let pokemonNameEnd = nombrePokemon.toLowerCase();
+    console.log(pokemonNameEnd);
+    if (pokemonNameEnd != '') {
+        getNamePokemons(pokemonNameEnd)
+    } else {
+        console.log('Pokemon no existe');
     }
 })
